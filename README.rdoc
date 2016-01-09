@@ -1,0 +1,129 @@
+== bareb Project Management
+
+Welcome to the bareb project management, support ticketing and CRM system. This software is licensed under the AGPLv3.
+
+Bareb can be used for helpdesk support ticketing, customer liasion, resource management (eg. systems and password tracking) and has a range of CRM type functionality. Plan your projects, see your schedule, know if you're slipping behind and why. Time Tracking and extensive reports help you show your clients exactly what you've done and for how long.
+
+==== Features
+* no restrictions or limits
+* interactive gantt chart & scheduling
+* flexible reporting
+* tracks and indexes all changes
+* notifications via email, rss & ical
+* ldap integration
+* accounting/billing system integration
+* custom attributes
+* inbound and outbound email integration
+* sophisticated access control
+* services (SLA)
+* resources
+* much much more
+
+Further project details can be seen at {Ohloh}[https://www.ohloh.net/p/Bareb].
+
+=== Support
+
+The primary support is through the {mailing list}[http://groups.google.com/group/Bareb] or if you have a bug report, {create an issue}[https://github.com/ari/Bareb/issues] in the tracker. If you want to write up details of a new feature you'd like to see, please use the {wiki}[https://github.com/ari/Bareb/wiki].
+
+
+=== Contributing
+
+Code contributions are welcome to this project and the best way to go about it is to fork the git repository:
+
+  https://github.com/ari/Bareb
+
+Please read the DEVELOPMENT.md file in this directory for more information. Join the {developer mailing list}discuss ideas or ask questions.
+
+
+== Installing Bareb on your server
+
+=== Step 1: Database
+
+Create a new database and user with full permissions to that database. You can use mysql or postgresql.
+
+
+=== Step 2: Servlet container
+
+Install Apache Tomcat (or another java servlet container) and make sure you can get to the default installation home page. How to install Tomcat or some other servlet container is beyond the scope of these instructions but the basic details can be found in the {documentation}[http://tomcat.apache.org/tomcat-7.0-doc/]. Don't be afraid of all those XML configuration files in Tomcat; mostly they can be left to default values.
+
+There is one file you will need to edit and that is context.xml. This file defines all the configuration for your application. Copy the {example}[https://github.com/ari/Bareb/blob/master/config/context.example.xml] into the tomcat configuration folder and set all the variables to reasonable choices for your system. 
+
+
+== Step 3: Install Bareb
+
+After all that setup we can now install the software. Just take the file ROOT.war from the {github release}[https://github.com/ari/Bareb/releases] and copy it into the webapps folder inside tomcat. If you ever need to upgrade in the future, just replace that one file.
+
+
+== Step 4: Connect
+
+Open a web browser and connect to your Bareb server. The default user is "admin" and password is "password". Remember to change the password for this user or disable it.
+
+
+=== Optional: Set up email receiving
+
+When Bareb sends outgoing emails for task updates, they will have a reply address which looks like this:
+
+  davidalmamail@zoho.com
+
+If a user hits reply to that email, you want it to be appended to the task comments. Here's how to set this up for sendmail; adapt the script for your own mail server. Mail can be running on a different server to Bareb because we use HTTP to push the mail from your mail server to Bareb.
+
+==== Sendmail
+
+Add an entry to /etc/mail/local-host-names for your hostname:
+
+  @acme.domain.com.au
+
+Add an entry to /etc/mail/aliases to create an alias that will hand off emails to a script
+
+  Bareb: "|/usr/local/share/Bareb/mail_script.sh"
+
+Add an entry to /etc/mail/virtusertable to redirect all emails to your domain to the above alias
+
+  @acme.domain.com.au        Bareb
+
+run "make; make restart" in /etc/mail to rebuild the sendmail databases.
+
+Now create a script at /usr/local/share/Bareb/mail_script.sh with the following contents
+
+    #!/bin/sh
+    SECRET=password1234
+    URL=https://acme.domain.com.au/emails
+    cat $2 | /usr/local/bin/curl -s -k --data-urlencode secret=${SECRET} --data-urlencode email@- ${URL}
+
+Make sure you change the password and you make it the same as the password in the context.xml file.
+
+
+== Debugging
+
+=== Accessing Rails console and rake commands
+
+It is now possible to access Rails console in Java environment
+
+    cd path/to/directory/WEB-INF/
+    RAILS_ENV=production bash ./script/jruby_jar_exec ./script/rails console
+
+Or run rake
+
+    RAILS_ENV=production bash ./script/jruby_jar_exec rake notes
+
+*NOTE*: It is important that rake is *not* already present in +PATH+.
+
+== Resources
+
+[Project page]             http://github.com/ari/Bareb
+
+
+
+
+== License
+
+Copyright (c) 2008-2013 . The trademark and any branding associated with the name Bareb are not released under any license and may not be used without permission.
+
+This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License version 3 as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+See LICENSE file for more details.
+
+Made by David.
+Thanks.
